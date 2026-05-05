@@ -1,12 +1,23 @@
-import { requireAuth } from "@/lib/session";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import TasksPageClient from "./TasksPageClient";
+import { redirect } from "next/navigation";
+import AccessRequiredState from "@/components/AccessRequiredState";
 
 export const metadata = { title: "Tasks" };
 
 export default async function TasksPage() {
-  const session = await requireAuth();
-  const userId = session.user!.id!;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return (
+      <AccessRequiredState
+        title="Check household tasks"
+        description="Sign in to manage chores, errands, and task assignments across your household."
+      />
+    );
+  }
+
+  const userId = session.user.id;
 
   const membership = await prisma.householdMember.findFirst({
     where: { userId },
@@ -24,7 +35,7 @@ export default async function TasksPage() {
     },
   });
 
-  if (!membership) return null;
+  if (!membership) redirect("/onboarding");
 
   return (
     <TasksPageClient

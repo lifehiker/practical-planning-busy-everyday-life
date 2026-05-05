@@ -7,7 +7,7 @@ import TopBar from "@/components/TopBar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user?.id) redirect("/auth/signin");
+  if (!session?.user?.id) return children;
 
   const membership = await prisma.householdMember.findFirst({
     where: { userId: session.user.id },

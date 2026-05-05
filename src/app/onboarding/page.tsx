@@ -1,13 +1,23 @@
 import { redirect } from "next/navigation";
-import { requireAuth } from "@/lib/session";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import OnboardingForm from "./OnboardingForm";
+import AccessRequiredState from "@/components/AccessRequiredState";
 
 export const metadata = { title: "Set up your household" };
 
 export default async function OnboardingPage() {
-  const session = await requireAuth();
-  const userId = session.user!.id!;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return (
+      <AccessRequiredState
+        title="Set up your household"
+        description="Sign in first, then you can create your household and start planning."
+      />
+    );
+  }
+
+  const userId = session.user.id;
 
   const existing = await prisma.householdMember.findFirst({ where: { userId } });
   if (existing) redirect("/dashboard");

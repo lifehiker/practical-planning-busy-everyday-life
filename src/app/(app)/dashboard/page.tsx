@@ -1,24 +1,35 @@
-import { requireAuth } from "@/lib/session";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { format, startOfDay, endOfDay, addDays } from "date-fns";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Utensils, CheckSquare, AlertTriangle, ArrowRight } from "lucide-react";
+import AccessRequiredState from "@/components/AccessRequiredState";
 
 export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  const session = await requireAuth();
-  const userId = session.user!.id!;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return (
+      <AccessRequiredState
+        title="See your household dashboard"
+        description="Sign in to view upcoming shifts, planned meals, and open tasks for your household."
+      />
+    );
+  }
+
+  const userId = session.user.id;
 
   const membership = await prisma.householdMember.findFirst({
     where: { userId },
     include: { household: { include: { members: { include: { user: true } } } } },
   });
 
-  if (!membership) return null;
+  if (!membership) redirect("/onboarding");
 
   const { household } = membership;
   const today = startOfDay(new Date());

@@ -2,6 +2,7 @@ import { signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { ChefHat } from "lucide-react";
 import Link from "next/link";
+import CredentialsForm from "./CredentialsForm";
 
 export const metadata = { title: "Sign In" };
 
@@ -36,16 +37,7 @@ export default function SignInPage() {
             </Button>
           </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">Or</span>
-            </div>
-          </div>
-
-          <EmailSignInForm />
+          <CredentialsForm />
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-6">
@@ -53,29 +45,5 @@ export default function SignInPage() {
         </p>
       </div>
     </div>
-  );
-}
-
-function EmailSignInForm() {
-  return (
-    <form
-      action={async (formData: FormData) => {
-        "use server";
-        const email = formData.get("email") as string;
-        await signIn("resend", { email, redirectTo: "/dashboard" });
-      }}
-      className="space-y-3"
-    >
-      <input
-        name="email"
-        type="email"
-        placeholder="your@email.com"
-        required
-        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      />
-      <Button type="submit" className="w-full">
-        Continue with Email
-      </Button>
-    </form>
   );
 }

@@ -5,7 +5,8 @@ import { Calendar, Clock, Users, ChefHat, Zap, ArrowRight, Check } from "lucide-
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white">      {/* Nav */}
+    <div className="min-h-screen bg-white">
+      {/* Nav */}
       <nav className="border-b sticky top-0 bg-white/95 backdrop-blur z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -42,7 +43,7 @@ export default function HomePage() {
             <Button size="lg" variant="outline" className="w-full sm:w-auto">See how it works</Button>
           </Link>
         </div>
-        <p className="text-sm text-gray-500 mt-4">Free plan available · No credit card required</p>
+        <p className="text-sm text-gray-500 mt-4">Free plan available - No credit card required</p>
       </section>
       {/* Problem */}
       <section className="bg-gray-50 py-16">
@@ -52,12 +53,12 @@ export default function HomePage() {
           </h2>
           <div className="grid sm:grid-cols-3 gap-6">
             {[
-              { icon: "📅", text: "Your meal planner assumes a normal Mon–Sun week — yours never does." },
-              { icon: "😩", text: "You planned a big dinner, then realized someone works that evening." },
-              { icon: "📱", text: "Coordinating dinner across a household takes 6 texts and nobody knows who's cooking." },
+              { icon: "1", text: "Your meal planner assumes a normal Mon-Sun week - yours never does." },
+              { icon: "2", text: "You planned a big dinner, then realized someone works that evening." },
+              { icon: "3", text: "Coordinating dinner across a household takes 6 texts and nobody knows who's cooking." },
             ].map((item, i) => (
               <div key={i} className="bg-white rounded-lg p-6 border text-center">
-                <div className="text-3xl mb-3">{item.icon}</div>
+                <div className="text-3xl mb-3 font-semibold text-blue-600">{item.icon}</div>
                 <p className="text-gray-700">{item.text}</p>
               </div>
             ))}
@@ -75,12 +76,12 @@ export default function HomePage() {
             {
               icon: Calendar,
               title: "Block-based scheduling",
-              description: "Add shifts, school days, travel, and home blocks. Not a generic calendar — real-life time blocks that drive every planning decision.",
+              description: "Add shifts, school days, travel, and home blocks. Not a generic calendar - real-life time blocks that drive every planning decision.",
             },
             {
               icon: Users,
               title: "Who's home tonight?",
-              description: "Every meal slot shows who's actually home based on schedule overlap — so you never plan a big dinner when everyone's working.",
+              description: "Every meal slot shows who's actually home based on schedule overlap - so you never plan a big dinner when everyone's working.",
             },
             {
               icon: Clock,
@@ -149,9 +150,9 @@ export default function HomePage() {
       {/* Testimonial */}
       <section className="py-16 max-w-3xl mx-auto px-4 text-center">
         <p className="text-xl text-gray-700 italic mb-4">
-          &ldquo;Finally a planner that doesn&apos;t assume I work 9&ndash;5. I&apos;m a night shift nurse and this is the first app that actually fits my life.&rdquo;
+          &quot;Finally a planner that doesn&#39;t assume I work 9-5. I&#39;m a night shift nurse and this is the first app that actually fits my life.&quot;
         </p>
-        <p className="text-sm text-gray-500">&mdash; Early beta user, ICU nurse</p>
+        <p className="text-sm text-gray-500">- Early beta user, ICU nurse</p>
       </section>
 
       {/* CTA */}
@@ -180,7 +181,7 @@ export default function HomePage() {
             <Link href="/family-planner-irregular-hours" className="hover:text-gray-900">Families</Link>
             <Link href="/rotating-schedule-meal-prep" className="hover:text-gray-900">Rotating Shifts</Link>
           </nav>
-          <p className="text-sm text-gray-500">&copy; 2026 ShiftMeal</p>
+          <p className="text-sm text-gray-500">(c) 2026 ShiftMeal</p>
         </div>
       </footer>
     </div>

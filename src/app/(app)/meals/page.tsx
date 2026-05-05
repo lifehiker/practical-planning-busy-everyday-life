@@ -1,14 +1,25 @@
-import { requireAuth } from "@/lib/session";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { startOfDay, addDays } from "date-fns";
 import { getSubscriptionStatus } from "@/lib/permissions";
 import MealsPageClient from "./MealsPageClient";
+import { redirect } from "next/navigation";
+import AccessRequiredState from "@/components/AccessRequiredState";
 
 export const metadata = { title: "Meals" };
 
 export default async function MealsPage() {
-  const session = await requireAuth();
-  const userId = session.user!.id!;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return (
+      <AccessRequiredState
+        title="Open your meal plan"
+        description="Sign in to manage meal ideas, assign dinners, and review schedule-driven meal changes."
+      />
+    );
+  }
+
+  const userId = session.user.id;
 
   const membership = await prisma.householdMember.findFirst({
     where: { userId },
@@ -41,7 +52,7 @@ export default async function MealsPage() {
     },
   });
 
-  if (!membership) return null;
+  if (!membership) redirect("/onboarding");
 
   const { isPro } = await getSubscriptionStatus(userId);
 
