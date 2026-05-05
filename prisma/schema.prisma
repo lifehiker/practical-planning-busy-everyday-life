@@ -1,0 +1,190 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  subscription  Subscription?
+  householdMemberships HouseholdMember[]
+  ownedHouseholds      Household[]       @relation("HouseholdOwner")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Household {
+  id        String   @id @default(cuid())
+  name      String
+  timezone  String   @default("America/New_York")
+  ownerId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner   User              @relation("HouseholdOwner", fields: [ownerId], references: [id])
+  members HouseholdMember[]
+  invites Invite[]
+  scheduleBlocks ScheduleBlock[]
+  mealIdeas      MealIdea[]
+  mealSlots      MealSlot[]
+  tasks          Task[]
+}
+
+model HouseholdMember {
+  id          String   @id @default(cuid())
+  householdId String
+  userId      String
+  role        String   @default("member") // "owner" | "member"
+  joinedAt    DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  assignedMealSlots MealSlot[] @relation("MealSlotAssignee")
+  assignedTasks     Task[]     @relation("TaskAssignee")
+  scheduleBlocks    ScheduleBlock[]
+
+  @@unique([householdId, userId])
+}
+
+model Invite {
+  id          String    @id @default(cuid())
+  householdId String
+  email       String
+  role        String    @default("member")
+  token       String    @unique @default(cuid())
+  acceptedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+}
+
+model ScheduleBlock {
+  id          String   @id @default(cuid())
+  householdId String
+  memberId    String
+  title       String
+  type        String   // "work" | "school" | "travel" | "busy" | "home"
+  startAt     DateTime
+  endAt       DateTime
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  household Household       @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  member    HouseholdMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+model MealIdea {
+  id          String   @id @default(cuid())
+  householdId String
+  name        String
+  prepEffort  String   @default("low") // "low" | "medium" | "high"
+  durationMin Int      @default(30)
+  tags        String[] @default([])
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  household Household  @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  mealSlots MealSlot[]
+}
+
+model MealSlot {
+  id               String    @id @default(cuid())
+  householdId      String
+  date             DateTime
+  slotType         String    // "breakfast" | "lunch" | "dinner" | "custom"
+  startAt          DateTime?
+  status           String    @default("unplanned") // "planned" | "leftovers" | "takeout" | "skip" | "unplanned"
+  assignedMemberId String?
+  mealIdeaId       String?
+  titleOverride    String?
+  needsReview      Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  household      Household        @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  assignedMember HouseholdMember? @relation("MealSlotAssignee", fields: [assignedMemberId], references: [id])
+  mealIdea       MealIdea?        @relation(fields: [mealIdeaId], references: [id])
+  tasks          Task[]
+}
+
+model Task {
+  id               String    @id @default(cuid())
+  householdId      String
+  title            String
+  date             DateTime
+  assignedMemberId String?
+  completed        Boolean   @default(false)
+  relatedMealSlotId String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  household      Household        @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  assignedMember HouseholdMember? @relation("TaskAssignee", fields: [assignedMemberId], references: [id])
+  mealSlot       MealSlot?        @relation(fields: [relatedMealSlotId], references: [id])
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  status               String    @default("inactive") // "active" | "inactive" | "past_due" | "canceled" | "trialing"
+  priceId              String?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
