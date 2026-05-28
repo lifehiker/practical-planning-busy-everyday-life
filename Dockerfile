@@ -15,6 +15,10 @@ ENV AUTH_SECRET="build-time-placeholder-secret"
 ENV NEXT_PUBLIC_APP_URL="https://localhost:3000"
 # Generate Prisma client now that schema.prisma is available
 RUN npx prisma generate
+# Some app builds may not produce a public/ dir. Ensure it exists so the
+# runner's `COPY --from=builder /app/public ./public` step can't fail with
+# "failed to compute cache key: ... /app/public not found".
+RUN mkdir -p /app/public
 RUN npm run build
 
 FROM node:20-slim AS runner
