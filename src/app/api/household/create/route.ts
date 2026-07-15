@@ -38,9 +38,9 @@ export async function POST(req: NextRequest) {
     // Seed starter meal ideas
     await tx.mealIdea.createMany({
       data: [
-        { householdId: h.id, name: "Scrambled Eggs & Toast", prepEffort: "low", durationMin: 10, tags: ["quick", "breakfast"] },
-        { householdId: h.id, name: "Pasta with Jarred Sauce", prepEffort: "low", durationMin: 20, tags: ["quick", "kid-friendly"] },
-        { householdId: h.id, name: "Grilled Chicken & Veggies", prepEffort: "medium", durationMin: 40, tags: ["healthy"] },
+        { householdId: h.id, name: "Scrambled Eggs & Toast", prepEffort: "low", durationMin: 10, tags: JSON.stringify(["quick", "breakfast"]) },
+        { householdId: h.id, name: "Pasta with Jarred Sauce", prepEffort: "low", durationMin: 20, tags: JSON.stringify(["quick", "kid-friendly"]) },
+        { householdId: h.id, name: "Grilled Chicken & Veggies", prepEffort: "medium", durationMin: 40, tags: JSON.stringify(["healthy"]) },
       ],
     });
     return h;

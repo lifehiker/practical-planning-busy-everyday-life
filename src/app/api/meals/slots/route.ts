@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { withParsedTags } from "@/lib/tags";
 import { getMaxPlanningDays } from "@/lib/permissions";
 import { addDays, startOfDay } from "date-fns";
 
@@ -40,5 +41,5 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return NextResponse.json({ slot });
+  return NextResponse.json({ slot: { ...slot, mealIdea: slot.mealIdea ? withParsedTags(slot.mealIdea) : null } });
 }

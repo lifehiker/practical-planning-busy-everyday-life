@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { canAddMealIdea } from "@/lib/permissions";
+import { serializeTags, withParsedTags } from "@/lib/tags";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -25,10 +26,10 @@ export async function POST(req: NextRequest) {
       name,
       prepEffort: prepEffort ?? "low",
       durationMin: durationMin ?? 30,
-      tags: tags ?? [],
+      tags: serializeTags(tags),
       notes,
     },
   });
 
-  return NextResponse.json({ idea });
+  return NextResponse.json({ idea: withParsedTags(idea) });
 }

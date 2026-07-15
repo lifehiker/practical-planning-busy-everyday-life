@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { withParsedTags } from "@/lib/tags";
 
 interface RouteParams { params: Promise<{ id: string }> }
 
@@ -39,7 +40,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     },
   });
 
-  return NextResponse.json({ slot });
+  return NextResponse.json({ slot: { ...slot, mealIdea: slot.mealIdea ? withParsedTags(slot.mealIdea) : null } });
 }
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {

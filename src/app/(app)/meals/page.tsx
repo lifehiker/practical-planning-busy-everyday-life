@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { withParsedTags } from "@/lib/tags";
 import { startOfDay, addDays } from "date-fns";
 import { getSubscriptionStatus } from "@/lib/permissions";
 import MealsPageClient from "./MealsPageClient";
@@ -56,9 +57,19 @@ export default async function MealsPage() {
 
   const { isPro } = await getSubscriptionStatus(userId);
 
+  // DB stores tags as a JSON string (SQLite); the client expects string[]
+  const household = {
+    ...membership.household,
+    mealIdeas: membership.household.mealIdeas.map(withParsedTags),
+    mealSlots: membership.household.mealSlots.map((slot) => ({
+      ...slot,
+      mealIdea: slot.mealIdea ? withParsedTags(slot.mealIdea) : null,
+    })),
+  };
+
   return (
     <MealsPageClient
-      household={membership.household}
+      household={household}
       currentMemberId={membership.id}
       isPro={isPro}
     />

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { serializeTags, withParsedTags } from "@/lib/tags";
 
 interface RouteParams { params: Promise<{ id: string }> }
 
@@ -21,10 +22,10 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 
   const idea = await prisma.mealIdea.update({
     where: { id },
-    data: { name, prepEffort, durationMin, tags: tags ?? [], notes },
+    data: { name, prepEffort, durationMin, tags: serializeTags(tags), notes },
   });
 
-  return NextResponse.json({ idea });
+  return NextResponse.json({ idea: withParsedTags(idea) });
 }
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
